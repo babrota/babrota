@@ -90,7 +90,7 @@ try:
         max_val = int(max_val[0])
         # to check if we have the same value for letter in different dictionaries take all where value equal our max_val
         keys_for_max_val = {k: v for k, v in letter_dict.items() if v == max_val}
-        # take the [0]th element as the minimum key, after sorting
+        # take the first element as the minimum key, after sorting
         min_key = sorted(keys_for_max_val.keys())[0]
         # add to the name of letter '_number of dictionary' if length of "list_values" > 1
         if len(list_values) > 1:
