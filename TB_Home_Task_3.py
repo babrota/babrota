@@ -94,7 +94,7 @@ try:
                 # add nice sentence into 'list_nice_sent' list
                 list_nice_sent.append(nice_sent)
 
-                # add new sentence to the end od second paragraph
+                # add new sentence to the end of second paragraph
                 if p == 1 and real_num_sent - 1 == i:
                     list_nice_sent.append(nice_sent_add)
                 # add \n after last sentence of paragraph
