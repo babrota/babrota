@@ -111,7 +111,7 @@ try:
     numb_wspc = len(re.findall(r'\s', final_text))
     # display final text
     print(f'\nFinal result:\n\n{final_text}')
-    # display umber of whitespaces
+    # display number of whitespaces
     print(f'\nNumber of whitespace characters in this text is {numb_wspc}.')
 except:
     print('\nError 6 occurs.')
