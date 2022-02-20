@@ -30,7 +30,7 @@ class Interface:
 
                                 self.final_str = ''
                                 if self.flag == '1':
-                                    news = News()
+                                    news = News(self.content_text_add, self.publish_date)
                                     self.final_str = news.news_processing()
                                     if self.final_str:
                                         break
@@ -40,7 +40,7 @@ class Interface:
                                         if re.search(r'\d{4}-\d{2}-\d{2}', self.content_text_add):
                                             try:
                                                 valid_date = datetime.strptime(self.content_text_add, "%Y-%m-%d")
-                                                adv = Advertising()
+                                                adv = Advertising(self.content_name_add, self.content_text_add, self.publish_date)
                                                 self.final_str = adv.date_difference()
                                             except ValueError:
                                                 print('\nInvalid date! Your date does not match the actual date.\n')
@@ -52,13 +52,14 @@ class Interface:
                                         print(f'\n{self.content_name} is empty. Please enter.')
                                         break
                                 else:
-                                    anl = Analytics()
+                                    anl = Analytics(self.content_name_add, self.content_text_add, self.publish_date)
                                     self.final_str = anl.analyst_rate()
                                     if self.final_str:
                                         break
 
                             if self.final_str:
-                                self.file_writer()
+                                fw = FileWriter(self.content_name, self.content_text, self.final_str)
+                                fw.file_writer()
 
                         else:
                             if int(self.flag) == 4:
@@ -70,6 +71,62 @@ class Interface:
                     print('\nYou put a lot of symbols! Please put a number from 1 to 4.')
             else:
                 print('\nYou did not make a choice! Please put a number from 1 to 4.')
+
+
+class News(Interface):
+    def __init__(self, content_text_add, publish_date):
+        super().__init__()
+        self.content_text_add = content_text_add
+        self.publish_date = publish_date
+
+    def news_processing(self):
+        part_str = f', ' if self.content_text_add else f''
+        final = f'{self.content_text_add}{part_str}{str(self.publish_date)[:16]}'
+        return final
+
+
+class Advertising(Interface):
+    def __init__(self, content_name_add, content_text_add, publish_date):
+        super().__init__()
+        self.content_name_add = content_name_add
+        self.content_text_add = content_text_add
+        self.publish_date = publish_date
+
+    def date_difference(self):
+        part_str = ''
+        if self.content_text_add:
+            date_diff = (datetime.strptime(self.content_text_add, "%Y-%m-%d") - self.publish_date).days
+            if date_diff < 0:
+                part_str = ' Outdated'
+            else:
+                part_str = f' {date_diff} days left' if date_diff > 1 else f' day left'
+            final = f'{self.content_name_add}: {self.content_text_add}, {part_str}'
+            return final
+
+
+class Analytics(Interface):
+    def __init__(self, content_name_add, content_text_add, publish_date):
+        super().__init__()
+        self.content_name_add = content_name_add
+        self.content_text_add = content_text_add
+        self.publish_date = publish_date
+
+    def analyst_rate(self):
+        part_str = ''
+        if self.content_name_add:
+            b = 10
+            analyst_rate = randint(1, b)
+            part_str = f'{self.content_name_add} {self.content_text_add} (rating - {analyst_rate} from {b}), ' if self.content_text_add else f''
+            final = f'{part_str}{str(self.publish_date)[:16]}'
+            return final
+
+
+class FileWriter(Interface):
+    def __init__(self, content_name, content_text, final_str):
+        super().__init__()
+        self.content_name = content_name
+        self.content_text = content_text
+        self.final_str = final_str
 
     def file_writer(self):
         if self.content_name:
@@ -83,36 +140,6 @@ class Interface:
                 print(f'\n{self.content_name} is empty. Not published.')
         else:
             print(f'\nNot published.')
-
-
-class News(Interface):
-    def news_processing(self):
-        part_str = f', ' if inter.content_text_add else f''
-        final = f'{inter.content_text_add}{part_str}{str(self.publish_date)[:16]}'
-        return final
-
-
-class Advertising(Interface):
-    def date_difference(self):
-        part_str = ''
-        if inter.content_text_add:
-            date_diff = (datetime.strptime(inter.content_text_add, "%Y-%m-%d") - self.publish_date).days
-            if date_diff < 0:
-                part_str = ' Outdated'
-            else:
-                part_str = f' {date_diff} days left' if date_diff > 1 else f' day left'
-            final = f'{inter.content_name_add}: {inter.content_text_add}, {part_str}'
-            return final
-
-
-class Analytics(Interface):
-    def analyst_rate(self):
-        if inter.content_name_add:
-            b = 10
-            analyst_rate = randint(1, b)
-            part_str = f'{inter.content_name_add} {inter.content_text_add} (rating - {analyst_rate} from {b}), ' if inter.content_text_add else f''
-            final = f'{part_str}{str(self.publish_date)[:16]}'
-            return final
 
 
 if __name__ == '__main__':
