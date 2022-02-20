@@ -20,7 +20,7 @@ inc_str = r'''homEwork:
 def get_add_sent(input_str):
     sent_add = ''
     sent_new = []
-    for word in input_str.split():
+    for word in input_str.lower().split():
         if '.' in word:
             sent_new.append(word[:-1])
     if sent_new:
@@ -40,7 +40,7 @@ def numb_sent(list_sent):
 
 # get nice sentence
 def get_sent(one_sent):
-    list_words = one_sent.split()
+    list_words = one_sent.lower().split()
     sentence = ' '.join(list_words)
     sentence = sentence[0].capitalize() + sentence[1:] + '. '
     return sentence
@@ -61,14 +61,11 @@ def calc_wspc(txt):
     return numb_whs
 
 
-# convert all text to lowercase
-inc_str = inc_str.lower()
-
 word_from = 'iz'
 word_to = 'is'
 spc = ' '
-# some replaces
-inc_str = inc_str.replace(spc + word_from + spc, spc + word_to + spc).replace(' tex.', ' text.').replace('\n\n', '\n')
+# convert all text to lowercase and some replaces
+inc_str = inc_str.lower().replace(spc + word_from + spc, spc + word_to + spc).replace(' tex.', ' text.').replace('\n\n', '\n')
 
 # add space before “ in Fix“iz”
 list_quot_inside = re.findall(r'\S“.*?”', inc_str)
@@ -114,7 +111,8 @@ for p in range(len(par_list)):
 # generate a final result concatenating a list of strings (nice sentences) using '' and remove spaces from the right
 final_text = ''.join(list_nice_sent).rstrip()
 
-# display final text
-print(f'\nFinal result:\n\n{final_text}')
-# display number of whitespaces
-print(f'\nThe number of whitespace characters in this text is {calc_wspc(final_text)}.')
+if __name__ == '__main__':
+    # display final text
+    print(f'\nFinal result:\n\n{final_text}')
+    # display number of whitespaces
+    print(f'\nThe number of whitespace characters in this text is {calc_wspc(final_text)}.')
