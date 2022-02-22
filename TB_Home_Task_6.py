@@ -166,8 +166,7 @@ class WriteFromFileInterface(Interface):
         self.folder = ''
         self.file_name = ''
         self.path = ''
-        # self.def_path = r'c:\ccc\template_6_TB.txt'
-        self.def_path = r'c:\ccc\ccc.txt'
+        self.def_path = r'c:\ccc\template_6_TB.txt'
         self.publish_date = publish_date
 
     def write_from_file_input(self):
