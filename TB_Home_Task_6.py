@@ -151,10 +151,10 @@ class FileWriter(Interface):
                     print(f'\n{self.content_name} is empty. Not published.')
                     return False
             else:
-                print(f'\nNot published.')
+                print(f'\nNot published! Something is wrong with the data.')
                 return False
         else:
-            print(f'\nNot published.')
+            print(f'\nNot published. Something is wrong with the data.')
             return False
 
 
@@ -166,7 +166,8 @@ class WriteFromFileInterface(Interface):
         self.folder = ''
         self.file_name = ''
         self.path = ''
-        self.def_path = r'c:\ccc\template_6_TB.txt'
+        # self.def_path = r'c:\ccc\template_6_TB.txt'
+        self.def_path = r'c:\ccc\ccc.txt'
         self.publish_date = publish_date
 
     def write_from_file_input(self):
@@ -231,6 +232,7 @@ class WriteFromFileInterface(Interface):
 class WriteFromFile(WriteFromFileInterface):
     def __init__(self, path, publish_date):
         super().__init__(publish_date)
+        self.rec_flag = None
         self.err_path = ''
         self.part_list = []
         self.paragraph = ''
@@ -251,7 +253,7 @@ class WriteFromFile(WriteFromFileInterface):
 
     def file_err_proc(self):
         with open(self.err_path, "a") as file:
-            file.write(self.paragraph + '\n')
+            file.write(self.paragraph + '\n\n')
             file.close()
 
     def write_from_file(self):
@@ -270,20 +272,18 @@ class WriteFromFile(WriteFromFileInterface):
             self.err_path = self.path[:-4] + '_err' + self.path[-4:]
 
             for p in range(len(self.paragraph_list)):
+                print(f'\n{p+1} publication:')
                 self.paragraph = self.paragraph_list[p]
                 self.part_list = self.paragraph.split('\n|')
 
+                self.final_str = ''
                 try:
                     self.content_name = self.part_list[0]
                     self.content_text = self.part_list[1].rstrip()
                     self.content_text_add = self.part_list[2]
                 except IndexError:
-                    print(f'\nSomething is wrong with the data! Please check file {self.path}.')
-                    m = 1
-                    self.file_err_proc()
+                    pass
                 else:
-                    self.final_str = ''
-
                     self.content_text = self.normalization()
 
                     if self.content_name == 'News':
@@ -295,32 +295,32 @@ class WriteFromFile(WriteFromFileInterface):
                         try:
                             valid_date = datetime.strptime(self.content_text_add, "%Y-%m-%d")
                         except ValueError:
-                            print('\nInvalid date! Please enter the date in YYYY-MM-DD format')
+                            print(f'\nInvalid date! Please put correct date in YYYY-MM-DD format.')
                         else:
                             adv_from_file = Advertising(self.content_name_add, self.content_text_add, self.publish_date)
                             self.final_str = adv_from_file.date_difference()
-                    else:
+
+                    elif self.content_name == 'Analytics':
                         self.content_name_add = 'Analyst'
                         anl_from_file = Analytics(self.content_name_add, self.content_text_add, self.publish_date)
                         self.final_str = anl_from_file.analyst_rate()
 
-                    fw_from_file = FileWriter(self.content_name, self.content_text, self.final_str)
-                    rec_flag = fw_from_file.file_writer()
+                fw_from_file = FileWriter(self.content_name, self.content_text, self.final_str)
+                self.rec_flag = fw_from_file.file_writer()
 
-                    if rec_flag:
-                        n = n + 1
-                    else:
-                        m = m + 1
-                        self.file_err_proc()
-            os.remove(self.path)
+                if self.rec_flag:
+                    n = n + 1
+                else:
+                    m = m + 1
+                    self.file_err_proc()
+
             if os.path.exists(self.err_path):
-                os.rename(self.err_path, self.path)
+                os.remove(self.path)
 
             if m == 0:
-                print('\nAll publications have been published.')
+                print(f'\nAll {n} publications have been published from {self.path} file.')
             else:
-                if n != 0:
-                    print(f'\n {n} publications have been published. See unpublished in {self.path}')
+                print(f'\n{n} publications have been published from {self.path} file. See {m} unpublished in {self.err_path} file.')
 
 
 if __name__ == '__main__':
