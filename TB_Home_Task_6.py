@@ -314,7 +314,7 @@ class WriteFromFile(WriteFromFileInterface):
                     m = m + 1
                     self.file_err_proc()
 
-            if os.path.exists(self.err_path):
+            if os.path.exists(self.path):
                 os.remove(self.path)
 
             if m == 0:
