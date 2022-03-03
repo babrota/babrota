@@ -281,7 +281,8 @@ class CountLetterAndWords(Interface):
             csv.register_dialect('my_dialect', delimiter='-', quoting=csv.QUOTE_NONNUMERIC)
             writer = csv.writer(csvfile, dialect='my_dialect')
             for item in word_dict.items():
-                writer.writerow(item)
+                if item[0].isalpha():
+                    writer.writerow(item)
 
 
 class WriteFromFile(WriteFromFileInterface):
