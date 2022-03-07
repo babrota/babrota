@@ -1,0 +1,42 @@
+[
+     {
+        "Type": "News",
+        "Text": "London police to probe Prince Charles charity amid cash-for-honors claims.",
+        "City": "London"
+     },
+     {
+        "Type": "News",
+        "Text": "Canada eases Covid entry rules.",
+        "City": "Ottawa"
+     },
+     {
+        "Type": "Privat Ad",
+        "Text": "British school, Coimbatore offers coaching classes for the preparation of IELTS and TOEFL. Phone: 270xxxxxx.",
+        "Date": "2022-04-20"
+     },
+     {
+        "Type": "Analytics",
+        "Text": "Israel's economy grew by 8,1% in 2021, its fastest pace in 21 years and a sharp rebound from its contraction, of 2,2%, the year before.",
+        "Analyst": "Petrov I."
+     },
+     {
+        "Type": "Analytics",
+        "Text": "America's new-look financial system is still loaded with risks. Asset prices are high.",
+        "Analyst": "Ivanov P."
+     },
+     {
+        "Type": "Privat Ad",
+        "Text": "Bicycle for sale. Contact number - 900xxxxxx.",
+        "Date": "2022-03-20"
+     },
+     {
+        "Type": "Privat Ad",
+        "Text": "A newly built 2 story luxury flat, complete with interior furnishings for sale. Contact number - 900xxxxxx. Interested buyers only",
+        "Date": "2022-04-30"
+    },
+     {
+        "Type": "News",
+        "Text": "Swimmer dies after shark bite.",
+        "City": "Sydney"
+    }
+]
