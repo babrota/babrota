@@ -431,7 +431,6 @@ class WriteFromFile(WriteFromFileInterface):
             self.n = 0
             self.m = 0
             self.err_path = self.gen_err_name()
-            print(f'self.err_path   {self.err_path}')
 
             for p in range(len(self.paragraph_list)):
                 print(f'\n{p+1} publication:')
