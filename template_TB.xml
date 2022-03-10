@@ -1,0 +1,42 @@
+<publications>
+   <item>
+      <Type>News</Type>
+      <Text>London police to probe Prince Charles charity amid cash-for-honors claims.</Text>
+      <City>London</City>
+   </item>
+   <item>      
+      <Type>News</Type>
+      <Text>Canada eases Covid entry rules.</Text>
+      <City>Ottawa</City>
+   </item> 
+   <item>      
+      <Type>Privat Ad</Type>
+      <Text>British school, Coimbatore offers coaching classes for the preparation of IELTS and TOEFL. Phone: 270xxxxxx.</Text>
+      <Date>2022-04-20</Date>
+   </item>
+   <item>      
+      <Type>Analytics</Type>
+      <Text>Israel's economy grew by 8,1% in 2021, its fastest pace in 21 years and a sharp rebound from its contraction, of 2,2%, the year before.</Text>
+      <Analyst>Petrov I.</Analyst>
+   </item>
+   <item>      
+      <Type>Analytics</Type>
+      <Text>America's new-look financial system is still loaded with risks. Asset prices are high.</Text>
+      <Analyst>Ivanov P.</Analyst>
+   </item>
+   <item>      
+      <Type>Privat Ad</Type>
+      <Text>Bicycle for sale. Contact number - 900xxxxxx.</Text>
+      <Date>2022-03-20</Date>
+   </item>
+   <item>      
+      <Type>Privat Ad</Type>
+      <Text>A newly built 2 story luxury flat, complete with interior furnishings for sale. Contact number - 900xxxxxx. Interested buyers only</Text>
+      <Date>2022-04-30</Date>
+   </item>
+   <item>      
+      <Type>News</Type>
+      <Text>Swimmer dies after shark bite.</Text>
+      <City>Sydney</City>
+   </item>
+</publications>
