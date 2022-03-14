@@ -25,7 +25,8 @@ class Interface:
         self.sent = ''
         self.file_str = ''
         self.publish_date = datetime.now()
-        self.my_file = "publications_TB.txt"
+        self.a_rate = 0
+        self.my_file = r'publications_TB.txt'
         self.def_txt_path = r'c:\ccc\template_TB.txt'
         self.def_json_path = r'c:\ccc\template_TB.json'
         self.def_xml_path = r'c:\ccc\template_TB.xml'
@@ -47,7 +48,7 @@ class Interface:
                                     self.def_path = self.def_json_path
                                 elif self.flag == '6':
                                     self.def_path = self.def_xml_path
-                                wffi = WriteFromFileInterface(self.publish_date, self.my_file, self.def_path, self.flag)
+                                wffi = WriteFromFileInterface(self.publish_date, self.my_file, self.def_path, self.flag, self.a_rate)
                                 wffi.write_from_file_input()
                             else:
                                 self.content_name = dict_publ.get(self.flag, '')[0]
@@ -89,14 +90,15 @@ class Interface:
                                     else:
                                         if self.content_text_add in ('None', ''):
                                             self.content_text_add = 'TASS'
-                                        anl = Analytics(self.content_name_add, self.content_text_add, self.publish_date)
+                                        self.a_rate = randint(1, 10)
+                                        anl = Analytics(self.content_name_add, self.content_text_add, self.publish_date, self.a_rate)
                                         self.final_str = anl.analyst_rate()
                                         if self.final_str:
                                             break
 
                                 if self.final_str:
                                     fw = FileWriter(self.content_name, self.content_text, self.final_str, self.my_file,
-                                                    self.content_text_add, self.publish_date)
+                                                    self.content_text_add, self.publish_date, self.a_rate)
                                     fw.file_writer()
                         else:
                             if int(self.flag) == 7:
@@ -146,26 +148,25 @@ class Advertising(Interface):
 
 
 class Analytics(Interface):
-    def __init__(self, content_name_add, content_text_add, publish_date):
+    def __init__(self, content_name_add, content_text_add, publish_date, a_rate):
         super().__init__()
         self.content_name_add = content_name_add
         self.content_text_add = content_text_add
         self.publish_date = publish_date
+        self.a_rate = a_rate
 
     def analyst_rate(self):
         part_str = ''
         if self.content_name_add:
             if self.content_text_add in ('None', ''):
                 self.content_text_add = 'TASS'
-            b = 10
-            analyst_rate = randint(1, b)
-            part_str = f'{self.content_name_add} {self.content_text_add} (rating - {analyst_rate} from {b}), ' if self.content_text_add else f''
+            part_str = f'{self.content_name_add} {self.content_text_add} (rating - {self.a_rate} from {10}), ' if self.content_text_add else f''
             final = f'{part_str}{str(self.publish_date)[:16]}'
             return final
 
 
 class FileWriter(Interface):
-    def __init__(self, content_name, content_text, final_str, my_file, content_text_add, publish_date):
+    def __init__(self, content_name, content_text, final_str, my_file, content_text_add, publish_date, a_rate):
         super().__init__()
         self.content_name = content_name
         self.content_text = content_text
@@ -173,6 +174,7 @@ class FileWriter(Interface):
         self.my_file = my_file
         self.content_text_add = content_text_add
         self.publish_date = publish_date
+        self.a_rate = a_rate
 
     def file_writer(self):
         if self.final_str:
@@ -184,16 +186,14 @@ class FileWriter(Interface):
                         for line in list_for_write:
                             file.write(line + '\n')
 
-                        db_publ = DBConnection(self.def_db, self.publish_date, self.content_text, self.content_text_add)
+                        db_publ = DBConnection(self.def_db, self.publish_date, self.content_text, self.content_text_add, self.a_rate)
                         if self.content_name == 'News':
                             db_publ.create_table_news()
-                            db_publ.insert_into_news()
                         elif self.content_name == 'Privat Ad':
                             db_publ.create_table_ad()
-                            db_publ.insert_into_ad()
                         elif self.content_name == 'Analytics':
                             db_publ.create_table_anl()
-                            db_publ.insert_into_anl()
+                        db_publ.close_cursor()
 
                         print('\nPublished successfully!')
                         return True
@@ -209,7 +209,7 @@ class FileWriter(Interface):
 
 
 class WriteFromFileInterface(Interface):
-    def __init__(self, publish_date, my_file, def_path, osn_flag):
+    def __init__(self, publish_date, my_file, def_path, osn_flag, a_rate):
         super().__init__()
         self.disk = ''
         self.folder = ''
@@ -220,6 +220,7 @@ class WriteFromFileInterface(Interface):
         self.my_file = my_file
         self.def_path = def_path
         self.osn_flag = osn_flag
+        self.a_rate = a_rate
 
     def write_from_file_input(self):
         while True:
@@ -267,8 +268,7 @@ class WriteFromFileInterface(Interface):
                                 return None
 
                             if self.path:
-                                wff = WriteFromFile(self.path, self.publish_date, self.my_file, self.def_path,
-                                                    self.osn_flag)
+                                wff = WriteFromFile(self.path, self.publish_date, self.my_file, self.def_path, self.osn_flag, self.a_rate)
                                 if self.osn_flag == '4':
                                     wff.write_from_file_text()
                                 elif self.osn_flag == '5':
@@ -333,8 +333,8 @@ class CountLetterAndWords(Interface):
 
 
 class WriteFromFile(WriteFromFileInterface):
-    def __init__(self, path, publish_date, my_file, def_path, flag):
-        super().__init__(publish_date, my_file, def_path, flag)
+    def __init__(self, path, publish_date, my_file, def_path, flag, a_rate):
+        super().__init__(publish_date, my_file, def_path, flag, a_rate)
         self.i = 0
         self.root = None
         self.xml_file = None
@@ -356,6 +356,7 @@ class WriteFromFile(WriteFromFileInterface):
         self.my_file = my_file
         self.def_path = def_path
         self.flag = flag
+        self.a_rate = a_rate
 
     def normalization(self):
         self.list_nice_sent = []
@@ -404,7 +405,8 @@ class WriteFromFile(WriteFromFileInterface):
             self.content_name_add = 'Analyst'
             if self.content_text_add in ('None', ''):
                 self.content_text_add = 'TASS'
-            anl_from_file = Analytics(self.content_name_add, self.content_text_add, self.publish_date)
+            self.a_rate = randint(1, 10)
+            anl_from_file = Analytics(self.content_name_add, self.content_text_add, self.publish_date, self.a_rate)
             self.final_str = anl_from_file.analyst_rate()
         return self.final_str
 
@@ -418,6 +420,25 @@ class WriteFromFile(WriteFromFileInterface):
             if self.n > 0:
                 print(
                     f'\n{self.n} publications have been published from {self.path} file. See {self.m} unpublished in {self.err_path} file.')
+
+    def processing(self):
+        fw_from_file = FileWriter(self.content_name, self.content_text, self.final_str, self.my_file,
+                                  self.content_text_add, self.publish_date, self.a_rate)
+        self.rec_flag = fw_from_file.file_writer()
+
+        if self.rec_flag:
+            self.n = self.n + 1
+            db_publ = DBConnection(self.def_db, self.publish_date, self.content_text, self.content_text_add, self.a_rate)
+            if self.content_name == 'News':
+                db_publ.create_table_news()
+            elif self.content_name == 'Privat Ad':
+                db_publ.create_table_ad()
+            elif self.content_name == 'Analytics':
+                db_publ.create_table_anl()
+            db_publ.close_cursor()
+        else:
+            self.m = self.m + 1
+            self.file_err_proc()
 
     def write_from_file_text(self):
         # self.path - path from interface for file read and load
@@ -446,25 +467,7 @@ class WriteFromFile(WriteFromFileInterface):
                     self.content_text = self.normalization()
                     self.final_str = self.proc_publ()
 
-                fw_from_file = FileWriter(self.content_name, self.content_text, self.final_str, self.my_file,
-                                          self.content_text_add, self.publish_date)
-                self.rec_flag = fw_from_file.file_writer()
-
-                if self.rec_flag:
-                    self.n = self.n + 1
-                    db_publ = DBConnection(self.def_db, self.publish_date, self.content_text, self.content_text_add)
-                    if self.content_name == 'News':
-                        db_publ.create_table_news()
-                        db_publ.insert_into_news()
-                    elif self.content_name == 'Privat Ad':
-                        db_publ.create_table_ad()
-                        db_publ.insert_into_ad()
-                    elif self.content_name == 'Analytics':
-                        db_publ.create_table_anl()
-                        db_publ.insert_into_anl()
-                else:
-                    self.m = self.m + 1
-                    self.file_err_proc()
+                self.processing()
 
             self.proc_fin_res()
 
@@ -501,25 +504,7 @@ class WriteFromFile(WriteFromFileInterface):
                 else:
                     self.final_str = self.proc_publ()
 
-                fw_from_file = FileWriter(self.content_name, self.content_text, self.final_str, self.my_file,
-                                          self.content_text_add, self.publish_date)
-                self.rec_flag = fw_from_file.file_writer()
-
-                if self.rec_flag:
-                    self.n = self.n + 1
-                    db_publ = DBConnection(self.def_db, self.publish_date, self.content_text, self.content_text_add)
-                    if self.content_name == 'News':
-                        db_publ.create_table_news()
-                        db_publ.insert_into_news()
-                    elif self.content_name == 'Privat Ad':
-                        db_publ.create_table_ad()
-                        db_publ.insert_into_ad()
-                    elif self.content_name == 'Analytics':
-                        db_publ.create_table_anl()
-                        db_publ.insert_into_anl()
-                else:
-                    self.m = self.m + 1
-                    self.file_err_proc()
+                self.processing()
 
             self.proc_fin_res()
 
@@ -555,53 +540,27 @@ class WriteFromFile(WriteFromFileInterface):
                 else:
                     self.final_str = self.proc_publ()
 
-                fw_from_file = FileWriter(self.content_name, self.content_text, self.final_str, self.my_file,
-                                          self.content_text_add, self.publish_date)
-                self.rec_flag = fw_from_file.file_writer()
-
-                if self.rec_flag:
-                    self.n = self.n + 1
-                    db_publ = DBConnection(self.def_db, self.publish_date, self.content_text, self.content_text_add)
-                    if self.content_name == 'News':
-                        db_publ.create_table_news()
-                        db_publ.insert_into_news()
-                    elif self.content_name == 'Privat Ad':
-                        db_publ.create_table_ad()
-                        db_publ.insert_into_ad()
-                    elif self.content_name == 'Analytics':
-                        db_publ.create_table_anl()
-                        db_publ.insert_into_anl()
-                else:
-                    self.m = self.m + 1
-                    self.file_err_proc()
+                self.processing()
 
             self.proc_fin_res()
 
 
 class DBConnection(WriteFromFileInterface):
-    def __init__(self, database_name, publish_date, content_text, content_text_add, my_file=None, def_path=None,
+    def __init__(self, database_name, publish_date, content_text, content_text_add, a_rate, my_file=None, def_path=None,
                  flag=None):
-        super().__init__(publish_date, my_file, def_path, flag)
+        super().__init__(publish_date, my_file, def_path, flag, a_rate)
         self.publish_date = publish_date
         self.content_text = content_text
         self.content_text_add = content_text_add
+        self.a_rate = a_rate
         with sqlite3.connect(database_name) as self.conn:
             self.cur = self.conn.cursor()
 
-            # with self.conn.cursor() as self.cur:
-            #     pass
+    def close_cursor(self):
+        self.cur.close()
 
     def create_table_news(self):
         self.cur.execute("CREATE TABLE IF NOT EXISTS news (text text, city varchar(256), date datetime)")
-
-    def create_table_ad(self):
-        self.cur.execute("CREATE TABLE IF NOT EXISTS advertising (text text, exp_date datetime, diff_days int)")
-
-    def create_table_anl(self):
-        self.cur.execute(
-            "CREATE TABLE IF NOT EXISTS analytics (text text, analyst varchar(256), rating varchar(256), date datetime)")
-
-    def insert_into_news(self):
         self.cur.execute(f"SELECT 1 FROM news WHERE rtrim(text) =? and rtrim(city) =?",
                          (self.content_text.rstrip(), self.content_text_add.rstrip()))
         if len(self.cur.fetchall()) == 0:
@@ -609,7 +568,8 @@ class DBConnection(WriteFromFileInterface):
                              (self.content_text.rstrip(), self.content_text_add.rstrip(), str(self.publish_date)[:16]))
             self.conn.commit()
 
-    def insert_into_ad(self):
+    def create_table_ad(self):
+        self.cur.execute("CREATE TABLE IF NOT EXISTS advertising (text text, exp_date datetime, diff_days int)")
         self.cur.execute(f"SELECT 1 FROM advertising WHERE rtrim(text) =?", (self.content_text.rstrip(),))
         if len(self.cur.fetchall()) == 0:
             self.cur.execute(f"INSERT INTO advertising VALUES (?,?,?)", (
@@ -617,12 +577,14 @@ class DBConnection(WriteFromFileInterface):
                 (datetime.strptime(self.content_text_add, "%Y-%m-%d") - self.publish_date).days))
             self.conn.commit()
 
-    def insert_into_anl(self):
+    def create_table_anl(self):
+        self.cur.execute(
+            "CREATE TABLE IF NOT EXISTS analytics (text text, analyst varchar(256), rating varchar(256), date datetime)")
         self.cur.execute(f"SELECT 1 FROM analytics WHERE rtrim(text) =? and rtrim(analyst) =?",
                          (self.content_text.rstrip(), self.content_text_add.rstrip()))
         if len(self.cur.fetchall()) == 0:
             self.cur.execute(f"INSERT INTO analytics VALUES (?,?,?,?)", (
-                self.content_text.rstrip(), self.content_text_add.rstrip(), randint(1, 10),
+                self.content_text.rstrip(), self.content_text_add.rstrip(), self.a_rate,
                 str(self.publish_date)[:16]))
             self.conn.commit()
 
