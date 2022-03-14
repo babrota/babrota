@@ -87,15 +87,16 @@ class Interface:
                                             print(f'\n{self.content_name} is empty. Please enter.')
                                             break
                                     else:
-                                        anl = Analytics(self.content_name_add, self.content_text_add, self.publish_date)
-                                        self.final_str = anl.analyst_rate()
                                         if self.content_text_add in ('None', ''):
                                             self.content_text_add = 'TASS'
+                                        anl = Analytics(self.content_name_add, self.content_text_add, self.publish_date)
+                                        self.final_str = anl.analyst_rate()
                                         if self.final_str:
                                             break
 
                                 if self.final_str:
-                                    fw = FileWriter(self.content_name, self.content_text, self.final_str, self.my_file)
+                                    fw = FileWriter(self.content_name, self.content_text, self.final_str, self.my_file,
+                                                    self.content_text_add, self.publish_date)
                                     fw.file_writer()
                         else:
                             if int(self.flag) == 7:
@@ -164,12 +165,14 @@ class Analytics(Interface):
 
 
 class FileWriter(Interface):
-    def __init__(self, content_name, content_text, final_str, my_file):
+    def __init__(self, content_name, content_text, final_str, my_file, content_text_add, publish_date):
         super().__init__()
         self.content_name = content_name
         self.content_text = content_text
         self.final_str = final_str
         self.my_file = my_file
+        self.content_text_add = content_text_add
+        self.publish_date = publish_date
 
     def file_writer(self):
         if self.final_str:
@@ -180,16 +183,18 @@ class FileWriter(Interface):
                     with open(self.my_file, "a") as file:
                         for line in list_for_write:
                             file.write(line + '\n')
-                            db_publ = DBConnection(self.def_db, self.publish_date, self.content_text, self.content_text_add)
-                            if self.content_name == 'News':
-                                db_publ.create_table_news()
-                                db_publ.insert_into_news()
-                            elif self.content_name == 'Privat Ad':
-                                db_publ.create_table_ad()
-                                db_publ.insert_into_ad()
-                            elif self.content_name == 'Analytics':
-                                db_publ.create_table_anl()
-                                db_publ.insert_into_anl()
+
+                        db_publ = DBConnection(self.def_db, self.publish_date, self.content_text, self.content_text_add)
+                        if self.content_name == 'News':
+                            db_publ.create_table_news()
+                            db_publ.insert_into_news()
+                        elif self.content_name == 'Privat Ad':
+                            db_publ.create_table_ad()
+                            db_publ.insert_into_ad()
+                        elif self.content_name == 'Analytics':
+                            db_publ.create_table_anl()
+                            db_publ.insert_into_anl()
+
                         print('\nPublished successfully!')
                         return True
                 else:
@@ -397,6 +402,8 @@ class WriteFromFile(WriteFromFileInterface):
 
         elif self.content_name == 'Analytics':
             self.content_name_add = 'Analyst'
+            if self.content_text_add in ('None', ''):
+                self.content_text_add = 'TASS'
             anl_from_file = Analytics(self.content_name_add, self.content_text_add, self.publish_date)
             self.final_str = anl_from_file.analyst_rate()
         return self.final_str
@@ -439,7 +446,8 @@ class WriteFromFile(WriteFromFileInterface):
                     self.content_text = self.normalization()
                     self.final_str = self.proc_publ()
 
-                fw_from_file = FileWriter(self.content_name, self.content_text, self.final_str, self.my_file)
+                fw_from_file = FileWriter(self.content_name, self.content_text, self.final_str, self.my_file,
+                                          self.content_text_add, self.publish_date)
                 self.rec_flag = fw_from_file.file_writer()
 
                 if self.rec_flag:
@@ -493,7 +501,8 @@ class WriteFromFile(WriteFromFileInterface):
                 else:
                     self.final_str = self.proc_publ()
 
-                fw_from_file = FileWriter(self.content_name, self.content_text, self.final_str, self.my_file)
+                fw_from_file = FileWriter(self.content_name, self.content_text, self.final_str, self.my_file,
+                                          self.content_text_add, self.publish_date)
                 self.rec_flag = fw_from_file.file_writer()
 
                 if self.rec_flag:
@@ -546,7 +555,8 @@ class WriteFromFile(WriteFromFileInterface):
                 else:
                     self.final_str = self.proc_publ()
 
-                fw_from_file = FileWriter(self.content_name, self.content_text, self.final_str, self.my_file)
+                fw_from_file = FileWriter(self.content_name, self.content_text, self.final_str, self.my_file,
+                                          self.content_text_add, self.publish_date)
                 self.rec_flag = fw_from_file.file_writer()
 
                 if self.rec_flag:
@@ -578,6 +588,9 @@ class DBConnection(WriteFromFileInterface):
         with sqlite3.connect(database_name) as self.conn:
             self.cur = self.conn.cursor()
 
+            # with self.conn.cursor() as self.cur:
+            #     pass
+
     def create_table_news(self):
         self.cur.execute("CREATE TABLE IF NOT EXISTS news (text text, city varchar(256), date datetime)")
 
@@ -600,8 +613,8 @@ class DBConnection(WriteFromFileInterface):
         self.cur.execute(f"SELECT 1 FROM advertising WHERE rtrim(text) =?", (self.content_text.rstrip(),))
         if len(self.cur.fetchall()) == 0:
             self.cur.execute(f"INSERT INTO advertising VALUES (?,?,?)", (
-            self.content_text.rstrip(), self.content_text_add.rstrip(),
-            (datetime.strptime(self.content_text_add, "%Y-%m-%d") - self.publish_date).days))
+                self.content_text.rstrip(), self.content_text_add.rstrip(),
+                (datetime.strptime(self.content_text_add, "%Y-%m-%d") - self.publish_date).days))
             self.conn.commit()
 
     def insert_into_anl(self):
@@ -609,7 +622,8 @@ class DBConnection(WriteFromFileInterface):
                          (self.content_text.rstrip(), self.content_text_add.rstrip()))
         if len(self.cur.fetchall()) == 0:
             self.cur.execute(f"INSERT INTO analytics VALUES (?,?,?,?)", (
-            self.content_text.rstrip(), self.content_text_add.rstrip(), randint(1, 10), str(self.publish_date)[:16]))
+                self.content_text.rstrip(), self.content_text_add.rstrip(), randint(1, 10),
+                str(self.publish_date)[:16]))
             self.conn.commit()
 
 
